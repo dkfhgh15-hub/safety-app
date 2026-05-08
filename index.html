@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>현장 순회점검</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+  .phone-frame { max-width: 430px; margin: 0 auto; background: #ffffff; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+
+  .top-bar { background: #1a3a5c; color: white; padding: 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; position: sticky; top: 0; z-index: 100; }
+  .top-bar-icon { font-size: 22px; }
+  .top-bar-title { font-size: 16px; font-weight: 600; }
+  .top-bar-sub { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+
+  .step-bar { display: flex; background: #f8f9fa; border-bottom: 1px solid #e9ecef; flex-shrink: 0; position: sticky; top: 58px; z-index: 99; }
+  .step-item { flex: 1; padding: 10px 4px; text-align: center; font-size: 11px; color: #999; border-bottom: 2px solid transparent; }
+  .step-item.active { color: #1a3a5c; border-bottom-color: #1a3a5c; font-weight: 600; }
+  .step-item.done { color: #0F6E56; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: #e0e0e0; color: #999; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px; }
+  .step-item.active .step-num { background: #1a3a5c; color: white; }
+  .step-item.done .step-num { background: #0F6E56; color: white; }
+
+  .content { flex: 1; overflow-y: auto; padding: 16px; }
+
+  .section-label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+
+  .upload-zone { border: 2px dashed #ccd; border-radius: 12px; padding: 28px 16px; text-align: center; background: #f8f9ff; cursor: pointer; margin-bottom: 14px; transition: all 0.2s; }
+  .upload-zone:active { background: #eef0ff; border-color: #1a3a5c; }
+  .upload-zone-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-zone-text { font-size: 15px; color: #555; font-weight: 500; }
+  .upload-zone-sub { font-size: 12px; color: #999; margin-top: 6px; }
+
+  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .photo-thumb-wrap { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1; background: #f0f0f0; }
+  .photo-thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.65); color: white; font-size: 13px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; }
+  .photo-label { position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 2px 6px; border-radius: 6px; }
+
+  .field-group { margin-bottom: 16px; }
+  .field-label { font-size: 13px; color: #555; margin-bottom: 7px; font-weight: 500; }
+  input[type=text], input[type=date], select, textarea {
+    width: 100%; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px;
+    font-size: 15px; font-family: inherit; background: white; color: #222;
+    -webkit-appearance: none; appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #1a3a5c; box-shadow: 0 0 0 3px rgba(26,58,92,0.1); }
+  textarea { resize: none; height: 80px; line-height: 1.5; }
+
+  .ai-card { background: #f8f9fa; border-radius: 12px; border: 1px solid #e9ecef; padding: 14px; margin-bottom: 12px; }
+  .ai-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .ai-badge { font-size: 11px; padding: 3px 8px; background: #dbeafe; color: #1e40af; border-radius: 6px; font-weight: 600; }
+  .photo-ref-badge { font-size: 11px; padding: 3px 8px; background: #d1fae5; color: #065f46; border-radius: 6px; font-weight: 600; }
+  .ai-card-title { font-size: 14px; font-weight: 600; }
+
+  .risk-item { padding: 12px; background: white; border-radius: 10px; border-left: 4px solid #ef4444; margin-bottom: 0; border: 1px solid #fee2e2; border-left: 4px solid #ef4444; }
+  .risk-item.medium { border-color: #fef3c7; border-left-color: #f59e0b; }
+  .risk-item.low { border-color: #d1fae5; border-left-color: #10b981; }
+  .risk-title { font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #111; }
+  .risk-law { font-size: 12px; color: #1e40af; margin-bottom: 4px; }
+  .risk-action { font-size: 12px; color: #444; line-height: 1.5; }
+  .severity-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-bottom: 6px; font-weight: 600; }
+  .sev-high { background: #fee2e2; color: #991b1b; }
+  .sev-medium { background: #fef3c7; color: #92400e; }
+  .sev-low { background: #d1fae5; color: #065f46; }
+
+  .btn-primary { width: 100%; padding: 15px; background: #1a3a5c; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; font-family: inherit; }
+  .btn-primary:active { background: #142d47; transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary { width: 100%; padding: 13px; background: white; color: #1a3a5c; border: 1.5px solid #1a3a5c; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 10px; font-family: inherit; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .analyzing-box { display: none; flex-direction: column; gap: 12px; padding: 20px; background: #f0f6ff; border-radius: 12px; margin-bottom: 14px; border: 1px solid #bfdbfe; }
+  .analyzing-box.show { display: flex; }
+  .analyzing-header { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: #1e40af; }
+  .spinner { width: 20px; height: 20px; border: 2.5px solid #bfdbfe; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-track { height: 5px; background: #bfdbfe; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #1e40af; border-radius: 3px; transition: width 0.4s ease; }
+  .analyzing-step { font-size: 12px; color: #3b82f6; }
+
+  .error-box { padding: 14px; background: #fee2e2; border-radius: 10px; border-left: 4px solid #ef4444; margin-bottom: 14px; }
+  .error-title { font-size: 14px; font-weight: 600; color: #991b1b; margin-bottom: 4px; }
+  .error-msg { font-size: 12px; color: #b91c1c; line-height: 1.5; }
+
+  .signature-pad { border: 1.5px solid #ddd; border-radius: 10px; background: white; width: 100%; height: 130px; cursor: crosshair; touch-action: none; display: block; }
+  .sig-clear-btn { font-size: 13px; color: #666; border: 1px solid #ddd; border-radius: 8px; padding: 6px 14px; background: none; cursor: pointer; margin-top: 8px; font-family: inherit; }
+
+  .success-box { text-align: center; padding: 40px 20px 20px; }
+  .success-icon { font-size: 56px; margin-bottom: 14px; }
+  .success-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #111; }
+  .success-sub { font-size: 14px; color: #666; line-height: 1.6; }
+
+  .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-row-label { color: #888; }
+  .info-row-val { font-weight: 600; }
+
+  .photo-actions { display: flex; gap: 8px; margin-bottom: 14px; }
+  .photo-btn { flex: 1; padding: 12px 8px; border: 1.5px solid #ddd; border-radius: 10px; background: #f8f9fa; font-size: 13px; cursor: pointer; text-align: center; color: #333; font-family: inherit; font-weight: 500; }
+  .photo-btn:active { background: #e9ecef; }
+
+  #fileInput, #cameraInput { display: none; }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="top-bar">
+    <div class="top-bar-icon">🦺</div>
+    <div>
+      <div class="top-bar-title">현장 순회점검</div>
+      <div class="top-bar-sub">Safety Patrol Inspector</div>
+    </div>
+  </div>
+
+  <div class="step-bar">
+    <div class="step-item active" id="step1-tab"><div class="step-num">1</div>사진</div>
+    <div class="step-item" id="step2-tab"><div class="step-num">2</div>AI분석</div>
+    <div class="step-item" id="step3-tab"><div class="step-num">3</div>정보입력</div>
+    <div class="step-item" id="step4-tab"><div class="step-num">4</div>파일생성</div>
+  </div>
+
+  <div class="content">
+
+    <!-- 페이지 1: 사진 -->
+    <div class="page active" id="page1">
+      <div class="section-label">위험요인 사진 등록</div>
+      <div class="photo-actions">
+        <div class="photo-btn" onclick="document.getElementById('cameraInput').click()">📷 카메라 촬영</div>
+        <div class="photo-btn" onclick="document.getElementById('fileInput').click()">🖼️ 갤러리 선택</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(event)">
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleFiles(event)">
+      <div class="photo-grid" id="photoGrid"></div>
+      <div class="upload-zone" onclick="document.getElementById('fileInput').click()" id="uploadZone">
+        <div class="upload-zone-icon">📸</div>
+        <div class="upload-zone-text">사진을 추가하려면 탭하세요</div>
+        <div class="upload-zone-sub">최대 4장 · AI가 사진을 직접 분석합니다</div>
+      </div>
+      <div class="field-group" style="margin-top:14px">
+        <div class="field-label">점검 구역</div>
+        <select id="zone">
+          <option value="">구역 선택...</option>
+          <option>A구역 - 작업현장</option>
+          <option>B구역 - 자재보관</option>
+          <option>C구역 - 가설구조물</option>
+          <option>D구역 - 전기설비</option>
+          <option>E구역 - 화학물질 취급</option>
+          <option>기타</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="goToAnalysis()">AI 위험요인 분석하기 →</button>
+    </div>
+
+    <!-- 페이지 2: AI 분석 -->
+    <div class="page" id="page2">
+      <div class="section-label">AI 위험요인 분석 결과</div>
+      <div class="analyzing-box" id="analyzingBox">
+        <div class="analyzing-header"><div class="spinner"></div><span id="analyzingText">AI가 사진을 분석하는 중...</span></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="analyzing-step" id="analyzingStep">사진을 읽는 중입니다</div>
+      </div>
+      <div id="errorBox"></div>
+      <div id="aiResults"></div>
+      <button class="btn-primary" onclick="goToPage(3)" id="nextBtn2" style="display:none">정보 입력하기 →</button>
+      <button class="btn-secondary" onclick="goToPage(1)">← 사진 다시 선택</button>
+    </div>
+
+    <!-- 페이지 3: 정보 입력 -->
+    <div class="page" id="page3">
+      <div class="section-label">점검 기본 정보</div>
+      <div class="field-group"><div class="field-label">점검자 이름</div><input type="text" id="inspector" placeholder="홍길동"></div>
+      <div class="field-group"><div class="field-label">점검 날짜</div><input type="date" id="inspDate"></div>
+      <div class="field-group"><div class="field-label">현장명</div><input type="text" id="siteName" placeholder="○○아파트 신축공사 현장"></div>
+      <div class="field-group"><div class="field-label">위치 (상세)</div><input type="text" id="location" placeholder="3층 외벽 비계 구간"></div>
+      <div class="field-group"><div class="field-label">특이사항 (선택)</div><textarea id="notes" placeholder="추가 메모..."></textarea></div>
+      <div class="section-label" style="margin-top:18px">점검자 서명</div>
+      <canvas class="signature-pad" id="sigPad" width="400" height="130"></canvas>
+      <button class="sig-clear-btn" onclick="clearSig()">🗑 서명 지우기</button>
+      <button class="btn-primary" onclick="generateDoc()" id="genBtn">📄 Word 파일 생성하기</button>
+      <button class="btn-secondary" onclick="goToPage(2)">← 분석 결과 보기</button>
+    </div>
+
+    <!-- 페이지 4: 완료 -->
+    <div class="page" id="page4">
+      <div class="success-box">
+        <div class="success-icon">✅</div>
+        <div class="success-title">순회점검표 생성 완료!</div>
+        <div class="success-sub">Word 파일이 다운로드되었습니다.<br>파일 앱에서 확인하세요.</div>
+      </div>
+      <div class="ai-card"><div class="section-label">생성된 문서 요약</div><div id="summaryContent"></div></div>
+      <button class="btn-primary" onclick="downloadAgain()">📥 다시 다운로드</button>
+      <button class="btn-secondary" onclick="resetApp()">🔄 새 점검 시작</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let photos = [], analysisResults = [], sigDrawing = false, sigCtx, sigCanvas, lastDocBlob = null;
+
+window.onload = () => {
+  document.getElementById('inspDate').value = new Date().toISOString().split('T')[0];
+  sigCanvas = document.getElementById('sigPad');
+  sigCtx = sigCanvas.getContext('2d');
+  sigCtx.strokeStyle = '#1a3a5c'; sigCtx.lineWidth = 2.5; sigCtx.lineCap = 'round'; sigCtx.lineJoin = 'round';
+  const getPos = e => {
+    const r = sigCanvas.getBoundingClientRect();
+    const s = e.touches ? e.touches[0] : e;
+    return { x: (s.clientX - r.left) * (sigCanvas.width / r.width), y: (s.clientY - r.top) * (sigCanvas.height / r.height) };
+  };
+  sigCanvas.addEventListener('mousedown', e => { sigDrawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); });
+  sigCanvas.addEventListener('mousemove', e => { if (!sigDrawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); });
+  sigCanvas.addEventListener('mouseup', () => sigDrawing = false);
+  sigCanvas.addEventListener('touchstart', e => { e.preventDefault(); sigDrawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); }, { passive: false });
+  sigCanvas.addEventListener('touchmove', e => { e.preventDefault(); if (!sigDrawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); }, { passive: false });
+  sigCanvas.addEventListener('touchend', () => sigDrawing = false);
+};
+
+function clearSig() { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
+
+function handleFiles(e) {
+  Array.from(e.target.files).forEach(file => {
+    if (photos.length >= 4) return;
+    const reader = new FileReader();
+    reader.onload = ev => { photos.push({ dataUrl: ev.target.result, name: file.name }); renderPhotoGrid(); };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function renderPhotoGrid() {
+  const grid = document.getElementById('photoGrid');
+  grid.innerHTML = '';
+  photos.forEach((p, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'photo-thumb-wrap';
+    wrap.innerHTML = `<img class="photo-thumb" src="${p.dataUrl}"><button class="photo-remove" onclick="removePhoto(${i})">✕</button><span class="photo-label">사진 ${i+1}</span>`;
+    grid.appendChild(wrap);
+  });
+  document.getElementById('uploadZone').style.display = photos.length >= 4 ? 'none' : '';
+}
+
+function removePhoto(i) { photos.splice(i, 1); renderPhotoGrid(); }
+
+function goToPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page' + n).classList.add('active');
+  document.querySelectorAll('.step-item').forEach((t, i) => {
+    t.classList.remove('active', 'done');
+    if (i + 1 < n) t.classList.add('done');
+    if (i + 1 === n) t.classList.add('active');
+  });
+  window.scrollTo(0, 0);
+}
+
+function setProgress(pct, stepText) {
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('analyzingStep').textContent = stepText;
+}
+
+async function goToAnalysis() {
+  if (photos.length === 0) { alert('사진을 최소 1장 이상 등록해주세요.'); return; }
+  goToPage(2);
+  const box = document.getElementById('analyzingBox');
+  document.getElementById('errorBox').innerHTML = '';
+  document.getElementById('aiResults').innerHTML = '';
+  document.getElementById('nextBtn2').style.display = 'none';
+  box.classList.add('show');
+
+  try {
+    setProgress(20, `사진 ${photos.length}장을 서버로 전송하는 중...`);
+    const images = photos.map(p => ({
+      mimeType: p.dataUrl.split(';')[0].split(':')[1],
+      data: p.dataUrl.split(',')[1]
+    }));
+    setProgress(45, 'AI가 사진 속 위험요인을 분석하는 중...');
+    document.getElementById('analyzingText').textContent = 'Claude AI가 분석 중...';
+
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ images, zone: document.getElementById('zone').value || '현장' })
+    });
+
+    setProgress(80, '분석 결과를 처리하는 중...');
+    if (!response.ok) { const e = await response.json(); throw new Error(e.error || `서버 오류 (${response.status})`); }
+    const data = await response.json();
+    analysisResults = data.risks || [];
+    setProgress(100, '분석 완료!');
+    await new Promise(r => setTimeout(r, 400));
+    box.classList.remove('show');
+    renderAnalysis();
+    document.getElementById('nextBtn2').style.display = 'block';
+  } catch (err) {
+    box.classList.remove('show');
+    document.getElementById('errorBox').innerHTML = `
+      <div class="error-box">
+        <div class="error-title">분석 오류</div>
+        <div class="error-msg">${err.message}</div>
+      </div>`;
+  }
+}
+
+function renderAnalysis() {
+  const sevLabel = { high: '고위험', medium: '중위험', low: '저위험' };
+  const sevClass = { high: 'sev-high', medium: 'sev-medium', low: 'sev-low' };
+  const itemClass = { high: '', medium: 'medium', low: 'low' };
+  if (!analysisResults.length) {
+    document.getElementById('aiResults').innerHTML = `<div class="ai-card" style="text-align:center;padding:28px"><div style="font-size:36px;margin-bottom:10px">✅</div><div style="font-weight:600;font-size:15px">위험요인이 발견되지 않았습니다</div><div style="font-size:13px;color:#888;margin-top:6px">사진 속 현장은 양호한 상태입니다</div></div>`;
+    return;
+  }
+  document.getElementById('aiResults').innerHTML = analysisResults.map((r, i) => `
+    <div class="ai-card">
+      <div class="ai-card-header">
+        <span class="ai-badge">AI 직접 분석</span>
+        <span class="ai-card-title">위험요인 ${i+1}</span>
+        ${r.photoIndex ? `<span class="photo-ref-badge">사진 ${r.photoIndex}번</span>` : ''}
+      </div>
+      <div class="risk-item ${itemClass[r.severity]||''}">
+        <span class="severity-badge ${sevClass[r.severity]||'sev-medium'}">${sevLabel[r.severity]||r.severity}</span>
+        <div class="risk-title">${r.title}</div>
+        <div class="risk-law">📋 ${r.law}</div>
+        <div class="risk-action" style="margin-top:4px">⚡ ${r.action}</div>
+        <div class="risk-action" style="margin-top:4px">📝 ${r.description}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function generateDoc() {
+  const inspector = document.getElementById('inspector').value || '미입력';
+  const inspDate = document.getElementById('inspDate').value || '미입력';
+  const siteName = document.getElementById('siteName').value || '미입력';
+  const location = document.getElementById('location').value || '미입력';
+  const notes = document.getElementById('notes').value || '없음';
+  const zone = document.getElementById('zone').value || '미지정';
+  const btn = document.getElementById('genBtn');
+  btn.textContent = '생성 중...'; btn.disabled = true;
+  try {
+    const { Document, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, ImageRun, Packer } = docx;
+    const sevLabel = { high: '고위험', medium: '중위험', low: '저위험' };
+    const infoRows = [
+      new TableRow({ children: ['항목','내용'].map(t => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: t, bold: true, color: 'FFFFFF' })] })] })) }),
+      ...[ ['점검 날짜', inspDate], ['현장명', siteName], ['점검 구역', zone], ['상세 위치', location], ['점검자', inspector] ].map(([k,v]) =>
+        new TableRow({ children: [new TableCell({ children: [new Paragraph(k)] }), new TableCell({ children: [new Paragraph(v)] })] }))
+    ];
+    const riskParas = [];
+    analysisResults.forEach((r, i) => {
+      riskParas.push(
+        new Paragraph({ children: [new TextRun({ text: `위험요인 ${i+1}: ${r.title}`, bold: true, size: 24, color: '1a3a5c' })], spacing: { before: 200 } }),
+        new Paragraph({ children: [new TextRun(`위험등급: ${sevLabel[r.severity]||r.severity}  |  해당 사진: ${r.photoIndex||'-'}번`)] }),
+        new Paragraph({ children: [new TextRun({ text: `관계법령: ${r.law}`, color: '1e40af' })] }),
+        new Paragraph({ children: [new TextRun(`조치사항: ${r.action}`)] }),
+        new Paragraph({ children: [new TextRun({ text: `상세: ${r.description}`, color: '555555' })], spacing: { after: 120 } }),
+      );
+    });
+    const photoParas = [];
+    for (let i = 0; i < photos.length; i++) {
+      try {
+        const b64 = photos[i].dataUrl.split(',')[1];
+        const bin = atob(b64); const bytes = new Uint8Array(bin.length);
+        for (let j = 0; j < bin.length; j++) bytes[j] = bin.charCodeAt(j);
+        photoParas.push(
+          new Paragraph({ children: [new TextRun({ text: `사진 ${i+1}`, bold: true, color: '1a3a5c' })], spacing: { before: 120 } }),
+          new Paragraph({ children: [new ImageRun({ data: bytes.buffer, transformation: { width: 380, height: 260 }, type: 'jpg' })], spacing: { after: 120 } }),
+        );
+      } catch(e) {}
+    }
+    let sigPara = new Paragraph({ children: [new TextRun('서명 없음')] });
+    try {
+      const sd = sigCanvas.toDataURL('image/png'); const sb = atob(sd.split(',')[1]);
+      const sb2 = new Uint8Array(sb.length); for (let i = 0; i < sb.length; i++) sb2[i] = sb.charCodeAt(i);
+      sigPara = new Paragraph({ children: [new ImageRun({ data: sb2.buffer, transformation: { width: 200, height: 70 }, type: 'png' })] });
+    } catch(e) {}
+
+    const doc = new Document({ sections: [{ properties: {}, children: [
+      new Paragraph({ children: [new TextRun({ text: '현장 순회점검표', bold: true, size: 40, color: '1a3a5c' })], alignment: AlignmentType.CENTER }),
+      new Paragraph({ children: [new TextRun({ text: 'Safety Patrol Inspection Report', size: 20, color: '888888' })], alignment: AlignmentType.CENTER, spacing: { after: 300 } }),
+      new Paragraph({ children: [new TextRun({ text: '■ 점검 기본 정보', bold: true, size: 26, color: '1a3a5c' })], spacing: { after: 100 } }),
+      new Table({ rows: infoRows, width: { size: 100, type: WidthType.PERCENTAGE } }),
+      new Paragraph({ children: [new TextRun({ text: '■ AI 위험요인 분석 결과', bold: true, size: 26, color: '1a3a5c' })], spacing: { before: 400, after: 100 } }),
+      ...riskParas,
+      new Paragraph({ children: [new TextRun({ text: '■ 현장 사진', bold: true, size: 26, color: '1a3a5c' })], spacing: { before: 400, after: 100 } }),
+      ...photoParas,
+      new Paragraph({ children: [new TextRun({ text: '■ 특이사항', bold: true, size: 26, color: '1a3a5c' })], spacing: { before: 400, after: 100 } }),
+      new Paragraph({ children: [new TextRun(notes)] }),
+      new Paragraph({ children: [new TextRun({ text: '■ 점검자 서명', bold: true, size: 26, color: '1a3a5c' })], spacing: { before: 400, after: 100 } }),
+      new Paragraph({ children: [new TextRun(`점검자: ${inspector}    날짜: ${inspDate}`)] }),
+      sigPara,
+    ]}] });
+    const blob = await Packer.toBlob(doc);
+    lastDocBlob = blob;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `순회점검표_${siteName}_${inspDate}.docx`; a.click();
+    URL.revokeObjectURL(url);
+    document.getElementById('summaryContent').innerHTML = `
+      <div class="info-row"><span class="info-row-label">현장명</span><span class="info-row-val">${siteName}</span></div>
+      <div class="info-row"><span class="info-row-label">점검 날짜</span><span class="info-row-val">${inspDate}</span></div>
+      <div class="info-row"><span class="info-row-label">점검자</span><span class="info-row-val">${inspector}</span></div>
+      <div class="info-row"><span class="info-row-label">위험요인 수</span><span class="info-row-val">${analysisResults.length}건</span></div>
+      <div class="info-row"><span class="info-row-label">첨부 사진</span><span class="info-row-val">${photos.length}장</span></div>`;
+    goToPage(4);
+  } catch(err) { alert('파일 생성 오류: ' + err.message); }
+  btn.textContent = '📄 Word 파일 생성하기'; btn.disabled = false;
+}
+
+function downloadAgain() {
+  if (!lastDocBlob) return;
+  const url = URL.createObjectURL(lastDocBlob);
+  const a = document.createElement('a'); a.href = url; a.download = '순회점검표.docx'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetApp() {
+  photos = []; analysisResults = []; lastDocBlob = null;
+  renderPhotoGrid();
+  document.getElementById('aiResults').innerHTML = '';
+  document.getElementById('errorBox').innerHTML = '';
+  ['inspector','siteName','location','notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('zone').value = '';
+  document.getElementById('inspDate').value = new Date().toISOString().split('T')[0];
+  clearSig(); goToPage(1);
+}
+</script>
+</body>
+</html>
