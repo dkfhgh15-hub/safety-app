@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0056)file:///C:/Users/user/Downloads/index_v2_download_2.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>안전·환경·보건·소방 일일 체크리스트</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;background:#e8edf2;min-height:100vh}
@@ -105,10 +105,10 @@ body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;back
     </div>
   </div>
   <div class="tab-bar">
-    <div class="tab active" onclick="switchTab('checklist',this)">📋 점검표</div>
-    <div class="tab" onclick="switchTab('photos',this)">📸 사진 <span class="tab-badge" id="photoBadge" style="display:none">0</span></div>
+    <div class="tab active" onclick="switchTab(&#39;checklist&#39;,this)">📋 점검표</div>
+    <div class="tab" onclick="switchTab(&#39;photos&#39;,this)">📸 사진 <span class="tab-badge" id="photoBadge" style="display:none">0</span></div>
   </div>
-  <div class="date-bar" id="dateBar"></div>
+  <div class="date-bar" id="dateBar">일 자 : 2026년 5월 21일 (목요일)</div>
   <div class="info-section">
     <div class="info-field"><div class="info-label">점검구역 / 현장명</div><input class="info-input" id="zone" type="text" placeholder="직접 입력"></div>
     <div class="info-field"><div class="info-label">점검자</div><input class="info-input" id="inspector" type="text" placeholder="이름 입력"></div>
@@ -185,14 +185,14 @@ body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;back
     <!-- 사진 탭 -->
     <div class="page" id="page-photos">
       <input type="file" id="photoCameraInput" accept="image/*" capture="environment" onchange="handlePhotoCamera(event)">
-      <input type="file" id="photoFileInput" accept="image/*" multiple onchange="handlePhotoFile(event)">
+      <input type="file" id="photoFileInput" accept="image/*" multiple="" onchange="handlePhotoFile(event)">
       <div class="photo-top-actions">
-        <div class="photo-act-btn" onclick="document.getElementById('photoCameraInput').click()">📷 카메라 촬영</div>
-        <div class="photo-act-btn" onclick="document.getElementById('photoFileInput').click()">🖼️ 갤러리 선택</div>
+        <div class="photo-act-btn" onclick="document.getElementById(&#39;photoCameraInput&#39;).click()">📷 카메라 촬영</div>
+        <div class="photo-act-btn" onclick="document.getElementById(&#39;photoFileInput&#39;).click()">🖼️ 갤러리 선택</div>
       </div>
       <div id="photoSummary" style="display:none" class="photo-summary"><span id="photoSummaryText"></span></div>
       <div id="photoCardList"></div>
-      <div class="photo-add-card" onclick="document.getElementById('photoFileInput').click()">
+      <div class="photo-add-card" onclick="document.getElementById(&#39;photoFileInput&#39;).click()">
         <div style="font-size:30px;color:#bbb">📸</div>
         <div style="font-size:13px;color:#888;margin-top:6px">사진을 추가하려면 탭하세요</div>
       </div>
@@ -427,5 +427,7 @@ function resetAll(){
   manCnt=1;window.scrollTo(0,0);
 }
 </script>
-</body>
-</html>
+<script src="./안전·환경·보건·소방 일일 체크리스트_files/docx.umd.min.js.다운로드"></script>
+
+
+</body></html>
