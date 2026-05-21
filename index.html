@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<!-- saved from url=(0056)file:///C:/Users/user/Downloads/index_v2_download_2.html -->
+<!-- saved from url=(0045)file:///C:/Users/user/Downloads/index_v4.html -->
 <html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>안전·환경·보건·소방 일일 체크리스트</title>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;background:#e8edf2;min-height:100vh}
@@ -319,7 +318,15 @@ async function submitForm(){
   const btn=document.getElementById('submitBtn');
   btn.textContent='생성 중...';btn.disabled=true;
   try{
-    const {Document,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,ImageRun,Packer,BorderStyle}=docx;
+    if(!window.docx){
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js';
+        s.onload=res; s.onerror=()=>rej(new Error('라이브러리 로드 실패'));
+        document.head.appendChild(s);
+      });
+    }
+    const {Document,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,ImageRun,Packer,BorderStyle}=window.docx;
     const inspector=document.getElementById('inspector').value||'미입력';
     const zone=document.getElementById('zone').value||'미입력';
     const notes=document.getElementById('notes').value||'없음';
@@ -427,7 +434,6 @@ function resetAll(){
   manCnt=1;window.scrollTo(0,0);
 }
 </script>
-<script src="./안전·환경·보건·소방 일일 체크리스트_files/docx.umd.min.js.다운로드"></script>
 
 
 </body></html>
