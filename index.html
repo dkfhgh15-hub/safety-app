@@ -2,429 +2,429 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>현장 순회점검</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>안전·환경·보건·소방 일일 체크리스트</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif; background: #f0f2f5; min-height: 100vh; }
-
-  .phone-frame { max-width: 430px; margin: 0 auto; background: #ffffff; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-
-  .top-bar { background: #1a3a5c; color: white; padding: 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; position: sticky; top: 0; z-index: 100; }
-  .top-bar-icon { font-size: 22px; }
-  .top-bar-title { font-size: 16px; font-weight: 600; }
-  .top-bar-sub { font-size: 11px; opacity: 0.7; margin-top: 2px; }
-
-  .step-bar { display: flex; background: #f8f9fa; border-bottom: 1px solid #e9ecef; flex-shrink: 0; position: sticky; top: 58px; z-index: 99; }
-  .step-item { flex: 1; padding: 10px 4px; text-align: center; font-size: 11px; color: #999; border-bottom: 2px solid transparent; }
-  .step-item.active { color: #1a3a5c; border-bottom-color: #1a3a5c; font-weight: 600; }
-  .step-item.done { color: #0F6E56; }
-  .step-num { width: 22px; height: 22px; border-radius: 50%; background: #e0e0e0; color: #999; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px; }
-  .step-item.active .step-num { background: #1a3a5c; color: white; }
-  .step-item.done .step-num { background: #0F6E56; color: white; }
-
-  .content { flex: 1; overflow-y: auto; padding: 16px; }
-
-  .section-label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
-
-  .upload-zone { border: 2px dashed #ccd; border-radius: 12px; padding: 28px 16px; text-align: center; background: #f8f9ff; cursor: pointer; margin-bottom: 14px; transition: all 0.2s; }
-  .upload-zone:active { background: #eef0ff; border-color: #1a3a5c; }
-  .upload-zone-icon { font-size: 36px; margin-bottom: 10px; }
-  .upload-zone-text { font-size: 15px; color: #555; font-weight: 500; }
-  .upload-zone-sub { font-size: 12px; color: #999; margin-top: 6px; }
-
-  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-  .photo-thumb-wrap { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1; background: #f0f0f0; }
-  .photo-thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .photo-remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.65); color: white; font-size: 13px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; }
-  .photo-label { position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 2px 6px; border-radius: 6px; }
-
-  .field-group { margin-bottom: 16px; }
-  .field-label { font-size: 13px; color: #555; margin-bottom: 7px; font-weight: 500; }
-  input[type=text], input[type=date], select, textarea {
-    width: 100%; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px;
-    font-size: 15px; font-family: inherit; background: white; color: #222;
-    -webkit-appearance: none; appearance: none;
-  }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: #1a3a5c; box-shadow: 0 0 0 3px rgba(26,58,92,0.1); }
-  textarea { resize: none; height: 80px; line-height: 1.5; }
-
-  .ai-card { background: #f8f9fa; border-radius: 12px; border: 1px solid #e9ecef; padding: 14px; margin-bottom: 12px; }
-  .ai-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-  .ai-badge { font-size: 11px; padding: 3px 8px; background: #dbeafe; color: #1e40af; border-radius: 6px; font-weight: 600; }
-  .photo-ref-badge { font-size: 11px; padding: 3px 8px; background: #d1fae5; color: #065f46; border-radius: 6px; font-weight: 600; }
-  .ai-card-title { font-size: 14px; font-weight: 600; }
-
-  .risk-item { padding: 12px; background: white; border-radius: 10px; border-left: 4px solid #ef4444; margin-bottom: 0; border: 1px solid #fee2e2; border-left: 4px solid #ef4444; }
-  .risk-item.medium { border-color: #fef3c7; border-left-color: #f59e0b; }
-  .risk-item.low { border-color: #d1fae5; border-left-color: #10b981; }
-  .risk-title { font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #111; }
-  .risk-law { font-size: 12px; color: #1e40af; margin-bottom: 4px; }
-  .risk-action { font-size: 12px; color: #444; line-height: 1.5; }
-  .severity-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-bottom: 6px; font-weight: 600; }
-  .sev-high { background: #fee2e2; color: #991b1b; }
-  .sev-medium { background: #fef3c7; color: #92400e; }
-  .sev-low { background: #d1fae5; color: #065f46; }
-
-  .btn-primary { width: 100%; padding: 15px; background: #1a3a5c; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; font-family: inherit; }
-  .btn-primary:active { background: #142d47; transform: scale(0.98); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-  .btn-secondary { width: 100%; padding: 13px; background: white; color: #1a3a5c; border: 1.5px solid #1a3a5c; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 10px; font-family: inherit; }
-
-  .page { display: none; }
-  .page.active { display: block; }
-
-  .analyzing-box { display: none; flex-direction: column; gap: 12px; padding: 20px; background: #f0f6ff; border-radius: 12px; margin-bottom: 14px; border: 1px solid #bfdbfe; }
-  .analyzing-box.show { display: flex; }
-  .analyzing-header { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: #1e40af; }
-  .spinner { width: 20px; height: 20px; border: 2.5px solid #bfdbfe; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .progress-track { height: 5px; background: #bfdbfe; border-radius: 3px; overflow: hidden; }
-  .progress-fill { height: 100%; background: #1e40af; border-radius: 3px; transition: width 0.4s ease; }
-  .analyzing-step { font-size: 12px; color: #3b82f6; }
-
-  .error-box { padding: 14px; background: #fee2e2; border-radius: 10px; border-left: 4px solid #ef4444; margin-bottom: 14px; }
-  .error-title { font-size: 14px; font-weight: 600; color: #991b1b; margin-bottom: 4px; }
-  .error-msg { font-size: 12px; color: #b91c1c; line-height: 1.5; }
-
-  .signature-pad { border: 1.5px solid #ddd; border-radius: 10px; background: white; width: 100%; height: 130px; cursor: crosshair; touch-action: none; display: block; }
-  .sig-clear-btn { font-size: 13px; color: #666; border: 1px solid #ddd; border-radius: 8px; padding: 6px 14px; background: none; cursor: pointer; margin-top: 8px; font-family: inherit; }
-
-  .success-box { text-align: center; padding: 40px 20px 20px; }
-  .success-icon { font-size: 56px; margin-bottom: 14px; }
-  .success-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #111; }
-  .success-sub { font-size: 14px; color: #666; line-height: 1.6; }
-
-  .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
-  .info-row:last-child { border-bottom: none; }
-  .info-row-label { color: #888; }
-  .info-row-val { font-weight: 600; }
-
-  .photo-actions { display: flex; gap: 8px; margin-bottom: 14px; }
-  .photo-btn { flex: 1; padding: 12px 8px; border: 1.5px solid #ddd; border-radius: 10px; background: #f8f9fa; font-size: 13px; cursor: pointer; text-align: center; color: #333; font-family: inherit; font-weight: 500; }
-  .photo-btn:active { background: #e9ecef; }
-
-  #fileInput, #cameraInput { display: none; }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;background:#e8edf2;min-height:100vh}
+.app{max-width:430px;margin:0 auto;background:#fff;min-height:100vh;display:flex;flex-direction:column;box-shadow:0 0 30px rgba(0,0,0,0.15)}
+.header{background:#1a3a5c;color:white;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;flex-shrink:0}
+.header-icon{font-size:22px}
+.header-title{font-size:15px;font-weight:600}
+.header-sub{font-size:11px;opacity:.7;margin-top:1px}
+.tab-bar{display:flex;background:#f0f4f8;border-bottom:1px solid #d8e0e8;flex-shrink:0;position:sticky;top:52px;z-index:199}
+.tab{flex:1;padding:11px 4px;text-align:center;font-size:12px;color:#888;border-bottom:2.5px solid transparent;cursor:pointer;font-weight:500}
+.tab.active{color:#1a3a5c;border-bottom-color:#1a3a5c}
+.tab-badge{display:inline-block;background:#ef4444;color:white;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:3px;vertical-align:middle}
+.date-bar{background:#f8f9fb;border-bottom:1px solid #e0e6ec;padding:9px 16px;font-size:13px;font-weight:600;color:#1a3a5c;text-align:center}
+.info-section{padding:12px 14px;background:#f8f9fb;border-bottom:1px solid #e0e6ec;display:flex;gap:10px;flex-shrink:0}
+.info-field{flex:1}
+.info-label{font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
+.info-input{width:100%;padding:9px 11px;border:1px solid #dde3ea;border-radius:8px;font-size:13px;font-family:inherit;background:white;color:#222}
+.info-input:focus{outline:none;border-color:#1a3a5c}
+.content{flex:1;overflow-y:auto;padding-bottom:90px}
+.page{display:none}
+.page.active{display:block}
+.col-header{display:flex;background:#e8eef5;border-bottom:1px solid #d0dae4}
+.col-h-main{flex:1;padding:7px 12px;font-size:11px;font-weight:600;color:#444;text-align:center}
+.col-h-chk{width:46px;padding:7px 4px;font-size:11px;font-weight:600;color:#444;text-align:center;border-left:1px solid #d0dae4;border-right:1px solid #d0dae4;flex-shrink:0}
+.col-h-det{width:92px;padding:7px 6px;font-size:11px;font-weight:600;color:#444;text-align:center;flex-shrink:0}
+.section{border-bottom:1px solid #e8edf2}
+.sec-title{background:#1a3a5c;color:white;padding:8px 14px;font-size:12.5px;font-weight:600}
+.chk-row{display:flex;align-items:stretch;border-bottom:1px solid #f0f2f5;min-height:46px}
+.chk-row:last-child{border-bottom:none}
+.chk-text{flex:1;padding:10px 12px;font-size:12.5px;line-height:1.5;color:#222;display:flex;align-items:center}
+.chk-box{width:46px;display:flex;align-items:center;justify-content:center;border-left:1px solid #eaecf0;border-right:1px solid #eaecf0;flex-shrink:0;cursor:pointer;background:#fafbfc;user-select:none}
+.chk-box:active{background:#e8f4e8}
+.chk-icon{font-size:20px;color:#ccc;transition:color .15s}
+.chk-box.checked{background:#f0faf4}
+.chk-box.checked .chk-icon{color:#16a34a}
+.det-wrap{width:92px;flex-shrink:0;padding:5px 7px;display:flex;align-items:center}
+.det-input{width:100%;border:none;background:transparent;font-size:11px;color:#333;font-family:inherit;resize:none;height:36px;line-height:1.4;outline:none}
+.det-input::placeholder{color:#bbb}
+.sub-section{padding:13px 14px;border-bottom:1px solid #e8edf2}
+.sub-title{font-size:13px;font-weight:600;color:#1a3a5c;margin-bottom:9px}
+.manual-item{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+.manual-num{width:22px;height:22px;border-radius:50%;background:#1a3a5c;color:white;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:8px}
+.manual-ta{flex:1;padding:8px 10px;border:1px solid #dde3ea;border-radius:8px;font-size:13px;font-family:inherit;resize:none;height:38px;line-height:1.4}
+.manual-ta:focus{outline:none;border-color:#1a3a5c}
+.add-btn{width:100%;padding:9px;border:1.5px dashed #b0bec8;border-radius:8px;background:none;color:#888;font-size:13px;cursor:pointer;font-family:inherit;margin-top:2px}
+.note-ta{width:100%;padding:10px 12px;border:1px solid #dde3ea;border-radius:8px;font-size:13px;font-family:inherit;resize:none;height:88px;line-height:1.6}
+.note-ta:focus{outline:none;border-color:#1a3a5c}
+.sign-canvas{border:1px solid #dde3ea;border-radius:8px;background:white;width:100%;height:110px;cursor:crosshair;touch-action:none;display:block}
+.sign-clear{font-size:12px;color:#888;border:1px solid #dde3ea;border-radius:6px;padding:5px 12px;background:none;cursor:pointer;margin-top:7px;font-family:inherit}
+.email-input{width:100%;padding:11px 13px;border:1px solid #dde3ea;border-radius:8px;font-size:14px;font-family:inherit}
+.email-input:focus{outline:none;border-color:#1a3a5c}
+.bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:11px 14px 14px;background:white;border-top:1px solid #e0e6ec;z-index:100}
+.submit-btn{width:100%;padding:14px;background:#1a3a5c;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.submit-btn:active{background:#142d47}
+.submit-btn:disabled{opacity:.5}
+.photo-top-actions{display:flex;gap:8px;padding:12px 14px 6px}
+.photo-act-btn{flex:1;padding:11px;border:1px solid #dde3ea;border-radius:9px;background:#f8f9fb;font-size:13px;cursor:pointer;text-align:center;color:#333;font-family:inherit;font-weight:500}
+.photo-act-btn:active{background:#e8edf2}
+.photo-card{background:white;border:1px solid #e0e6ec;border-radius:10px;margin:8px 14px;overflow:hidden}
+.photo-img-wrap{position:relative;height:185px;background:#f0f4f8;border-bottom:1px solid #e0e6ec;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;overflow:hidden}
+.photo-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0}
+.photo-placeholder-txt{color:#bbb;font-size:13px;text-align:center}
+.photo-num-badge{position:absolute;top:8px;left:8px;background:rgba(26,58,92,.8);color:white;font-size:10px;padding:3px 8px;border-radius:5px}
+.photo-remove-btn{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);color:white;font-size:14px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer}
+.photo-card-body{padding:11px 13px}
+.photo-field{margin-bottom:9px}
+.photo-field-label{font-size:11px;color:#888;font-weight:500;margin-bottom:4px}
+.photo-field-input{width:100%;padding:8px 10px;border:1px solid #dde3ea;border-radius:7px;font-size:13px;font-family:inherit;resize:none;line-height:1.5}
+.photo-field-input:focus{outline:none;border-color:#1a3a5c}
+.photo-field-ta{height:52px}
+.sev-row{display:flex;gap:6px}
+.sev-opt{flex:1;padding:7px 4px;border:1px solid #dde3ea;border-radius:7px;text-align:center;font-size:12px;cursor:pointer;font-family:inherit;background:white;color:#888}
+.sev-opt.sel-high{background:#FEE2E2;color:#991B1B;border-color:#F9A8A8;font-weight:600}
+.sev-opt.sel-medium{background:#FEF3C7;color:#92400E;border-color:#FCD34D;font-weight:600}
+.sev-opt.sel-low{background:#D1FAE5;color:#065F46;border-color:#6EE7B7;font-weight:600}
+.law-input{width:100%;padding:8px 10px;border:1px solid #dde3ea;border-radius:7px;font-size:12px;font-family:inherit;color:#1D4ED8}
+.law-input:focus{outline:none;border-color:#1D4ED8}
+.photo-add-card{margin:8px 14px;border:1.5px dashed #c8d4de;border-radius:10px;padding:18px;text-align:center;cursor:pointer;background:#fafbfc}
+.photo-add-card:active{background:#eef2f6}
+.photo-summary{margin:8px 14px;padding:10px 13px;background:#f0f4f8;border-radius:8px;font-size:12px;color:#555;display:flex;justify-content:space-between;align-items:center}
+.done-wrap{display:none;padding:40px 20px;text-align:center}
+.done-wrap.show{display:block}
+.done-icon{font-size:58px;margin-bottom:14px}
+.done-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.done-sub{font-size:14px;color:#666;line-height:1.7;margin-bottom:28px}
+.done-btn{width:100%;padding:14px;background:#1a3a5c;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:10px}
+.done-btn-sec{width:100%;padding:13px;background:white;color:#1a3a5c;border:1.5px solid #1a3a5c;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+#photoFileInput,#photoCameraInput{display:none}
 </style>
 </head>
 <body>
-<div class="phone-frame">
-  <div class="top-bar">
-    <div class="top-bar-icon">🦺</div>
+<div class="app" id="mainApp">
+  <div class="header">
+    <div class="header-icon">🦺</div>
     <div>
-      <div class="top-bar-title">현장 순회점검</div>
-      <div class="top-bar-sub">Safety Patrol Inspector</div>
+      <div class="header-title">안전·환경·보건·소방</div>
+      <div class="header-sub">일일 체크리스트</div>
     </div>
   </div>
-
-  <div class="step-bar">
-    <div class="step-item active" id="step1-tab"><div class="step-num">1</div>사진</div>
-    <div class="step-item" id="step2-tab"><div class="step-num">2</div>AI분석</div>
-    <div class="step-item" id="step3-tab"><div class="step-num">3</div>정보입력</div>
-    <div class="step-item" id="step4-tab"><div class="step-num">4</div>파일생성</div>
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('checklist',this)">📋 점검표</div>
+    <div class="tab" onclick="switchTab('photos',this)">📸 사진 <span class="tab-badge" id="photoBadge" style="display:none">0</span></div>
   </div>
-
+  <div class="date-bar" id="dateBar"></div>
+  <div class="info-section">
+    <div class="info-field"><div class="info-label">점검구역 / 현장명</div><input class="info-input" id="zone" type="text" placeholder="직접 입력"></div>
+    <div class="info-field"><div class="info-label">점검자</div><input class="info-input" id="inspector" type="text" placeholder="이름 입력"></div>
+  </div>
   <div class="content">
 
-    <!-- 페이지 1: 사진 -->
-    <div class="page active" id="page1">
-      <div class="section-label">위험요인 사진 등록</div>
-      <div class="photo-actions">
-        <div class="photo-btn" onclick="document.getElementById('cameraInput').click()">📷 카메라 촬영</div>
-        <div class="photo-btn" onclick="document.getElementById('fileInput').click()">🖼️ 갤러리 선택</div>
+    <!-- 점검표 탭 -->
+    <div class="page active" id="page-checklist">
+      <div class="col-header">
+        <div class="col-h-main">주요 점검 내용</div>
+        <div class="col-h-chk">✓</div>
+        <div class="col-h-det">상세사항</div>
       </div>
-      <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(event)">
-      <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleFiles(event)">
-      <div class="photo-grid" id="photoGrid"></div>
-      <div class="upload-zone" onclick="document.getElementById('fileInput').click()" id="uploadZone">
-        <div class="upload-zone-icon">📸</div>
-        <div class="upload-zone-text">사진을 추가하려면 탭하세요</div>
-        <div class="upload-zone-sub">최대 4장 · AI가 사진을 직접 분석합니다</div>
+      <div class="section"><div class="sec-title">■ 일반안전</div>
+        <div class="chk-row"><div class="chk-text">1. 작업장 정리정돈, 청결상태 / 안전보건 표지판 부착상태</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">2. 규정된 복장 및 안전보호구 착용상태</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">3. 안전장치 임의 조작·해체 등 이상유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">4. 작업시 안전작업허가서/작업계획서 발행 유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
       </div>
-      <div class="field-group" style="margin-top:14px">
-        <div class="field-label">점검 구역</div>
-        <select id="zone">
-          <option value="">구역 선택...</option>
-          <option>A구역 - 작업현장</option>
-          <option>B구역 - 자재보관</option>
-          <option>C구역 - 가설구조물</option>
-          <option>D구역 - 전기설비</option>
-          <option>E구역 - 화학물질 취급</option>
-          <option>기타</option>
-        </select>
+      <div class="section"><div class="sec-title">■ 화재·폭발 예방</div>
+        <div class="chk-row"><div class="chk-text">1. 작업전 충분한 환기 및 가스농도 측정 후 작업유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">2. 화기 작업시 소화기, 방염포 비치 및 인화성 물질 제거</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">3. 화기 작업시 감독자 배치 및 배관 질소 치환 유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
       </div>
-      <button class="btn-primary" onclick="goToAnalysis()">AI 위험요인 분석하기 →</button>
+      <div class="section"><div class="sec-title">■ 고소작업 추락위험 예방</div>
+        <div class="chk-row"><div class="chk-text">1. 안전망, 안전로프 설치 및 안전모, 안전대 착용유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">2. 비계 사용시 안전가대, 작업발판 등 설치유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+      </div>
+      <div class="section"><div class="sec-title">■ 제한공간 출입시 질식·중독사고 예방</div>
+        <div class="chk-row"><div class="chk-text">1. 작업 시작 전/중 유해가스 농도 측정유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">2. 작업 시작 전/중 환기 실시 유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+      </div>
+      <div class="section"><div class="sec-title">■ 중량물 취급시 협착·낙하예방</div>
+        <div class="chk-row"><div class="chk-text">1. 중량물 인양 시 낙하장소에 출입금지 조치여부</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">2. 크레인 후크핀, 과부하방지, 권과방지장치 등 이상유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">3. 중량물 형태에 적합한 줄걸이 체결 유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+      </div>
+      <div class="section"><div class="sec-title">■ 제품 및 위험물 상하·차 작업시</div>
+        <div class="chk-row"><div class="chk-text">1. 차량 정차시 고임목 설치 및 차량키 분리 여부</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">2. 상차대 올라갈 시 안전모 착용여부</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">3. 지게·전동차 및 화물 자동차 규정속도(20km) 준수여부</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+      </div>
+      <div class="section"><div class="sec-title">■ 환경시설 및 폐기물 관리</div>
+        <div class="chk-row"><div class="chk-text">1. 환경오염 배출시설 및 방지시설 관리 위반 여부</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">2. 화학물질 누출 흔적, 폐기물 배출 적합 여부</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+      </div>
+      <div class="section"><div class="sec-title">■ 보건관리</div>
+        <div class="chk-row"><div class="chk-text">1. 분진, 유기용제등의 유해인자 발생장소 국소배기 가동 유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">2. 작업환경에 따른 적합한 개인 보호구 착용 유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">3. 화학물질에 대한 MSDS 비치 및 경고표시 부착유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">4. 작업장 적정 조도 확보 유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+        <div class="chk-row"><div class="chk-text">5. 상비약, 응급 치료함 보관상태 적정 유무</div><div class="chk-box" onclick="toggleChk(this)"><span class="chk-icon">○</span></div><div class="det-wrap"><textarea class="det-input" placeholder="메모"></textarea></div></div>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">⚠️ 위험요인 직접 입력</div>
+        <div id="manualList"><div class="manual-item"><div class="manual-num">1</div><textarea class="manual-ta" placeholder="위험요인 내용 직접 입력..."></textarea></div></div>
+        <button class="add-btn" onclick="addManual()">+ 위험요인 추가</button>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">■ 특이사항</div>
+        <textarea class="note-ta" id="notes" placeholder="특이사항을 입력하세요..."></textarea>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">✍️ 점검자 서명</div>
+        <canvas class="sign-canvas" id="sigPad" width="400" height="110"></canvas>
+        <button class="sign-clear" onclick="clearSig()">🗑 서명 지우기</button>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">📧 결과 수신 이메일</div>
+        <input class="email-input" id="emailInput" type="email" placeholder="example@email.com">
+      </div>
     </div>
 
-    <!-- 페이지 2: AI 분석 -->
-    <div class="page" id="page2">
-      <div class="section-label">AI 위험요인 분석 결과</div>
-      <div class="analyzing-box" id="analyzingBox">
-        <div class="analyzing-header"><div class="spinner"></div><span id="analyzingText">AI가 사진을 분석하는 중...</span></div>
-        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-        <div class="analyzing-step" id="analyzingStep">사진을 읽는 중입니다</div>
+    <!-- 사진 탭 -->
+    <div class="page" id="page-photos">
+      <input type="file" id="photoCameraInput" accept="image/*" capture="environment" onchange="handlePhotoCamera(event)">
+      <input type="file" id="photoFileInput" accept="image/*" multiple onchange="handlePhotoFile(event)">
+      <div class="photo-top-actions">
+        <div class="photo-act-btn" onclick="document.getElementById('photoCameraInput').click()">📷 카메라 촬영</div>
+        <div class="photo-act-btn" onclick="document.getElementById('photoFileInput').click()">🖼️ 갤러리 선택</div>
       </div>
-      <div id="errorBox"></div>
-      <div id="aiResults"></div>
-      <button class="btn-primary" onclick="goToPage(3)" id="nextBtn2" style="display:none">정보 입력하기 →</button>
-      <button class="btn-secondary" onclick="goToPage(1)">← 사진 다시 선택</button>
-    </div>
-
-    <!-- 페이지 3: 정보 입력 -->
-    <div class="page" id="page3">
-      <div class="section-label">점검 기본 정보</div>
-      <div class="field-group"><div class="field-label">점검자 이름</div><input type="text" id="inspector" placeholder="홍길동"></div>
-      <div class="field-group"><div class="field-label">점검 날짜</div><input type="date" id="inspDate"></div>
-      <div class="field-group"><div class="field-label">현장명</div><input type="text" id="siteName" placeholder="○○아파트 신축공사 현장"></div>
-      <div class="field-group"><div class="field-label">위치 (상세)</div><input type="text" id="location" placeholder="3층 외벽 비계 구간"></div>
-      <div class="field-group"><div class="field-label">특이사항 (선택)</div><textarea id="notes" placeholder="추가 메모..."></textarea></div>
-      <div class="section-label" style="margin-top:18px">점검자 서명</div>
-      <canvas class="signature-pad" id="sigPad" width="400" height="130"></canvas>
-      <button class="sig-clear-btn" onclick="clearSig()">🗑 서명 지우기</button>
-      <button class="btn-primary" onclick="generateDoc()" id="genBtn">📄 Word 파일 생성하기</button>
-      <button class="btn-secondary" onclick="goToPage(2)">← 분석 결과 보기</button>
-    </div>
-
-    <!-- 페이지 4: 완료 -->
-    <div class="page" id="page4">
-      <div class="success-box">
-        <div class="success-icon">✅</div>
-        <div class="success-title">순회점검표 생성 완료!</div>
-        <div class="success-sub">Word 파일이 다운로드되었습니다.<br>파일 앱에서 확인하세요.</div>
+      <div id="photoSummary" style="display:none" class="photo-summary"><span id="photoSummaryText"></span></div>
+      <div id="photoCardList"></div>
+      <div class="photo-add-card" onclick="document.getElementById('photoFileInput').click()">
+        <div style="font-size:30px;color:#bbb">📸</div>
+        <div style="font-size:13px;color:#888;margin-top:6px">사진을 추가하려면 탭하세요</div>
       </div>
-      <div class="ai-card"><div class="section-label">생성된 문서 요약</div><div id="summaryContent"></div></div>
-      <button class="btn-primary" onclick="downloadAgain()">📥 다시 다운로드</button>
-      <button class="btn-secondary" onclick="resetApp()">🔄 새 점검 시작</button>
     </div>
 
+  </div>
+  <div class="bottom-bar">
+    <button class="submit-btn" onclick="submitForm()" id="submitBtn">✅ 작성완료 · Word 파일 생성</button>
   </div>
 </div>
 
+<div class="done-wrap" id="doneWrap">
+  <div class="done-icon">✅</div>
+  <div class="done-title">작성 완료!</div>
+  <div class="done-sub" id="doneMsg"></div>
+  <button class="done-btn" onclick="downloadAgain()">📥 파일 다시 다운로드</button>
+  <button class="done-btn-sec" onclick="resetAll()">🔄 새 점검 시작</button>
+</div>
+
 <script>
-let photos = [], analysisResults = [], sigDrawing = false, sigCtx, sigCanvas, lastDocBlob = null;
+const DAYS=['일','월','화','수','목','금','토'];
+const NOW=new Date();
+const DATESTR=`일 자 : ${NOW.getFullYear()}년 ${NOW.getMonth()+1}월 ${NOW.getDate()}일 (${DAYS[NOW.getDay()]}요일)`;
+document.getElementById('dateBar').textContent=DATESTR;
 
-window.onload = () => {
-  document.getElementById('inspDate').value = new Date().toISOString().split('T')[0];
-  sigCanvas = document.getElementById('sigPad');
-  sigCtx = sigCanvas.getContext('2d');
-  sigCtx.strokeStyle = '#1a3a5c'; sigCtx.lineWidth = 2.5; sigCtx.lineCap = 'round'; sigCtx.lineJoin = 'round';
-  const getPos = e => {
-    const r = sigCanvas.getBoundingClientRect();
-    const s = e.touches ? e.touches[0] : e;
-    return { x: (s.clientX - r.left) * (sigCanvas.width / r.width), y: (s.clientY - r.top) * (sigCanvas.height / r.height) };
-  };
-  sigCanvas.addEventListener('mousedown', e => { sigDrawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); });
-  sigCanvas.addEventListener('mousemove', e => { if (!sigDrawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); });
-  sigCanvas.addEventListener('mouseup', () => sigDrawing = false);
-  sigCanvas.addEventListener('touchstart', e => { e.preventDefault(); sigDrawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); }, { passive: false });
-  sigCanvas.addEventListener('touchmove', e => { e.preventDefault(); if (!sigDrawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); }, { passive: false });
-  sigCanvas.addEventListener('touchend', () => sigDrawing = false);
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+}
+
+function toggleChk(el){
+  el.classList.toggle('checked');
+  el.querySelector('.chk-icon').textContent=el.classList.contains('checked')?'✔':'○';
+}
+
+let manCnt=1;
+function addManual(){
+  manCnt++;
+  const d=document.createElement('div');
+  d.className='manual-item';
+  d.innerHTML=`<div class="manual-num">${manCnt}</div><textarea class="manual-ta" placeholder="위험요인 내용 직접 입력..."></textarea>`;
+  document.getElementById('manualList').appendChild(d);
+}
+
+let sigDrawing=false,sigCtx,sigCanvas;
+window.onload=()=>{
+  sigCanvas=document.getElementById('sigPad');
+  sigCtx=sigCanvas.getContext('2d');
+  sigCtx.strokeStyle='#1a3a5c';sigCtx.lineWidth=2.5;sigCtx.lineCap='round';sigCtx.lineJoin='round';
+  const gp=e=>{const r=sigCanvas.getBoundingClientRect();const s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*(sigCanvas.width/r.width),y:(s.clientY-r.top)*(sigCanvas.height/r.height)}};
+  sigCanvas.addEventListener('mousedown',e=>{sigDrawing=true;const p=gp(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y)});
+  sigCanvas.addEventListener('mousemove',e=>{if(!sigDrawing)return;const p=gp(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke()});
+  sigCanvas.addEventListener('mouseup',()=>sigDrawing=false);
+  sigCanvas.addEventListener('touchstart',e=>{e.preventDefault();sigDrawing=true;const p=gp(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y)},{passive:false});
+  sigCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigDrawing)return;const p=gp(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke()},{passive:false});
+  sigCanvas.addEventListener('touchend',()=>sigDrawing=false);
 };
+function clearSig(){sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height)}
 
-function clearSig() { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
-
-function handleFiles(e) {
-  Array.from(e.target.files).forEach(file => {
-    if (photos.length >= 4) return;
-    const reader = new FileReader();
-    reader.onload = ev => { photos.push({ dataUrl: ev.target.result, name: file.name }); renderPhotoGrid(); };
-    reader.readAsDataURL(file);
-  });
-  e.target.value = '';
+let photos=[];
+function handlePhotoCamera(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();r.onload=ev=>{photos.push({dataUrl:ev.target.result,risk:'',severity:'',action:'',law:''});renderPhotoCards()};
+  r.readAsDataURL(file);e.target.value='';
 }
-
-function renderPhotoGrid() {
-  const grid = document.getElementById('photoGrid');
-  grid.innerHTML = '';
-  photos.forEach((p, i) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'photo-thumb-wrap';
-    wrap.innerHTML = `<img class="photo-thumb" src="${p.dataUrl}"><button class="photo-remove" onclick="removePhoto(${i})">✕</button><span class="photo-label">사진 ${i+1}</span>`;
-    grid.appendChild(wrap);
-  });
-  document.getElementById('uploadZone').style.display = photos.length >= 4 ? 'none' : '';
+function handlePhotoFile(e){
+  Array.from(e.target.files).forEach(file=>{
+    if(photos.length>=8)return;
+    const r=new FileReader();r.onload=ev=>{photos.push({dataUrl:ev.target.result,risk:'',severity:'',action:'',law:''});renderPhotoCards()};
+    r.readAsDataURL(file);
+  });e.target.value='';
 }
+function removePhoto(i){photos.splice(i,1);renderPhotoCards()}
+function setSev(i,val){photos[i].severity=val;renderPhotoCards()}
+function updateField(i,f,v){photos[i][f]=v}
 
-function removePhoto(i) { photos.splice(i, 1); renderPhotoGrid(); }
-
-function goToPage(n) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page' + n).classList.add('active');
-  document.querySelectorAll('.step-item').forEach((t, i) => {
-    t.classList.remove('active', 'done');
-    if (i + 1 < n) t.classList.add('done');
-    if (i + 1 === n) t.classList.add('active');
-  });
-  window.scrollTo(0, 0);
-}
-
-function setProgress(pct, stepText) {
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('analyzingStep').textContent = stepText;
-}
-
-async function goToAnalysis() {
-  if (photos.length === 0) { alert('사진을 최소 1장 이상 등록해주세요.'); return; }
-  goToPage(2);
-  const box = document.getElementById('analyzingBox');
-  document.getElementById('errorBox').innerHTML = '';
-  document.getElementById('aiResults').innerHTML = '';
-  document.getElementById('nextBtn2').style.display = 'none';
-  box.classList.add('show');
-
-  try {
-    setProgress(20, `사진 ${photos.length}장을 서버로 전송하는 중...`);
-    const images = photos.map(p => ({
-      mimeType: p.dataUrl.split(';')[0].split(':')[1],
-      data: p.dataUrl.split(',')[1]
-    }));
-    setProgress(45, 'AI가 사진 속 위험요인을 분석하는 중...');
-    document.getElementById('analyzingText').textContent = 'Claude AI가 분석 중...';
-
-    const response = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ images, zone: document.getElementById('zone').value || '현장' })
-    });
-
-    setProgress(80, '분석 결과를 처리하는 중...');
-    if (!response.ok) { const e = await response.json(); throw new Error(e.error || `서버 오류 (${response.status})`); }
-    const data = await response.json();
-    analysisResults = data.risks || [];
-    setProgress(100, '분석 완료!');
-    await new Promise(r => setTimeout(r, 400));
-    box.classList.remove('show');
-    renderAnalysis();
-    document.getElementById('nextBtn2').style.display = 'block';
-  } catch (err) {
-    box.classList.remove('show');
-    document.getElementById('errorBox').innerHTML = `
-      <div class="error-box">
-        <div class="error-title">분석 오류</div>
-        <div class="error-msg">${err.message}</div>
-      </div>`;
-  }
-}
-
-function renderAnalysis() {
-  const sevLabel = { high: '고위험', medium: '중위험', low: '저위험' };
-  const sevClass = { high: 'sev-high', medium: 'sev-medium', low: 'sev-low' };
-  const itemClass = { high: '', medium: 'medium', low: 'low' };
-  if (!analysisResults.length) {
-    document.getElementById('aiResults').innerHTML = `<div class="ai-card" style="text-align:center;padding:28px"><div style="font-size:36px;margin-bottom:10px">✅</div><div style="font-weight:600;font-size:15px">위험요인이 발견되지 않았습니다</div><div style="font-size:13px;color:#888;margin-top:6px">사진 속 현장은 양호한 상태입니다</div></div>`;
-    return;
-  }
-  document.getElementById('aiResults').innerHTML = analysisResults.map((r, i) => `
-    <div class="ai-card">
-      <div class="ai-card-header">
-        <span class="ai-badge">AI 직접 분석</span>
-        <span class="ai-card-title">위험요인 ${i+1}</span>
-        ${r.photoIndex ? `<span class="photo-ref-badge">사진 ${r.photoIndex}번</span>` : ''}
+function renderPhotoCards(){
+  const list=document.getElementById('photoCardList');
+  const badge=document.getElementById('photoBadge');
+  const summary=document.getElementById('photoSummary');
+  badge.textContent=photos.length;badge.style.display=photos.length>0?'':'none';
+  if(photos.length>0){
+    const hi=photos.filter(p=>p.severity==='high').length;
+    const md=photos.filter(p=>p.severity==='medium').length;
+    summary.style.display='flex';
+    document.getElementById('photoSummaryText').textContent=`총 ${photos.length}장 · 고위험 ${hi}건 · 중위험 ${md}건`;
+  }else{summary.style.display='none'}
+  list.innerHTML=photos.map((p,i)=>`
+    <div class="photo-card">
+      <div class="photo-img-wrap">
+        ${p.dataUrl?`<img src="${p.dataUrl}">`:'<div class="photo-placeholder-txt">📷<br>사진 ${i+1}</div>'}
+        <div class="photo-num-badge">사진 ${i+1}</div>
+        <button class="photo-remove-btn" onclick="removePhoto(${i})">✕</button>
       </div>
-      <div class="risk-item ${itemClass[r.severity]||''}">
-        <span class="severity-badge ${sevClass[r.severity]||'sev-medium'}">${sevLabel[r.severity]||r.severity}</span>
-        <div class="risk-title">${r.title}</div>
-        <div class="risk-law">📋 ${r.law}</div>
-        <div class="risk-action" style="margin-top:4px">⚡ ${r.action}</div>
-        <div class="risk-action" style="margin-top:4px">📝 ${r.description}</div>
+      <div class="photo-card-body">
+        <div class="photo-field">
+          <div class="photo-field-label">위험요인 설명</div>
+          <textarea class="photo-field-input photo-field-ta" placeholder="사진 속 위험요인을 입력하세요..." oninput="updateField(${i},'risk',this.value)">${p.risk}</textarea>
+        </div>
+        <div class="photo-field">
+          <div class="photo-field-label">위험등급</div>
+          <div class="sev-row">
+            <button class="sev-opt ${p.severity==='high'?'sel-high':''}" onclick="setSev(${i},'high')">🔴 고위험</button>
+            <button class="sev-opt ${p.severity==='medium'?'sel-medium':''}" onclick="setSev(${i},'medium')">🟡 중위험</button>
+            <button class="sev-opt ${p.severity==='low'?'sel-low':''}" onclick="setSev(${i},'low')">🟢 저위험</button>
+          </div>
+        </div>
+        <div class="photo-field">
+          <div class="photo-field-label">조치사항</div>
+          <textarea class="photo-field-input photo-field-ta" placeholder="즉시 조치사항을 입력하세요..." oninput="updateField(${i},'action',this.value)">${p.action}</textarea>
+        </div>
+        <div class="photo-field">
+          <div class="photo-field-label">관계법령</div>
+          <input class="law-input photo-field-input" type="text" placeholder="예) 산업안전보건법 제38조" value="${p.law}" oninput="updateField(${i},'law',this.value)">
+        </div>
       </div>
     </div>`).join('');
 }
 
-async function generateDoc() {
-  const inspector = document.getElementById('inspector').value || '미입력';
-  const inspDate = document.getElementById('inspDate').value || '미입력';
-  const siteName = document.getElementById('siteName').value || '미입력';
-  const location = document.getElementById('location').value || '미입력';
-  const notes = document.getElementById('notes').value || '없음';
-  const zone = document.getElementById('zone').value || '미지정';
-  const btn = document.getElementById('genBtn');
-  btn.textContent = '생성 중...'; btn.disabled = true;
-  try {
-    const { Document, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, ImageRun, Packer } = docx;
-    const sevLabel = { high: '고위험', medium: '중위험', low: '저위험' };
-    const infoRows = [
-      new TableRow({ children: ['항목','내용'].map(t => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: t, bold: true, color: 'FFFFFF' })] })] })) }),
-      ...[ ['점검 날짜', inspDate], ['현장명', siteName], ['점검 구역', zone], ['상세 위치', location], ['점검자', inspector] ].map(([k,v]) =>
-        new TableRow({ children: [new TableCell({ children: [new Paragraph(k)] }), new TableCell({ children: [new Paragraph(v)] })] }))
+let lastBlob=null;
+async function submitForm(){
+  const btn=document.getElementById('submitBtn');
+  btn.textContent='생성 중...';btn.disabled=true;
+  try{
+    const {Document,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,ImageRun,Packer,BorderStyle}=docx;
+    const inspector=document.getElementById('inspector').value||'미입력';
+    const zone=document.getElementById('zone').value||'미입력';
+    const notes=document.getElementById('notes').value||'없음';
+    const checks=Array.from(document.querySelectorAll('.chk-row')).map(row=>({
+      text:row.querySelector('.chk-text')?.textContent?.trim()||'',
+      checked:row.querySelector('.chk-box')?.classList.contains('checked')||false,
+      detail:row.querySelector('.det-input')?.value||''
+    }));
+    const manuals=Array.from(document.querySelectorAll('.manual-ta')).map(el=>el.value.trim()).filter(Boolean);
+    const secDef=[
+      {title:'■ 일반안전',idx:[0,1,2,3]},
+      {title:'■ 화재·폭발 예방',idx:[4,5,6]},
+      {title:'■ 고소작업 추락위험 예방',idx:[7,8]},
+      {title:'■ 제한공간 출입시 질식·중독사고 예방',idx:[9,10]},
+      {title:'■ 중량물 취급시 협착·낙하예방',idx:[11,12,13]},
+      {title:'■ 제품 및 위험물 상하·차 작업시',idx:[14,15,16]},
+      {title:'■ 환경시설 및 폐기물 관리',idx:[17,18]},
+      {title:'■ 보건관리',idx:[19,20,21,22,23]},
     ];
-    const riskParas = [];
-    analysisResults.forEach((r, i) => {
-      riskParas.push(
-        new Paragraph({ children: [new TextRun({ text: `위험요인 ${i+1}: ${r.title}`, bold: true, size: 24, color: '1a3a5c' })], spacing: { before: 200 } }),
-        new Paragraph({ children: [new TextRun(`위험등급: ${sevLabel[r.severity]||r.severity}  |  해당 사진: ${r.photoIndex||'-'}번`)] }),
-        new Paragraph({ children: [new TextRun({ text: `관계법령: ${r.law}`, color: '1e40af' })] }),
-        new Paragraph({ children: [new TextRun(`조치사항: ${r.action}`)] }),
-        new Paragraph({ children: [new TextRun({ text: `상세: ${r.description}`, color: '555555' })], spacing: { after: 120 } }),
-      );
+    const chkRows=[new TableRow({children:[
+      new TableCell({children:[new Paragraph({children:[new TextRun({text:'주요 점검 내용',bold:true,size:20})]})],width:{size:65,type:WidthType.PERCENTAGE},shading:{fill:'D0D9E8'}}),
+      new TableCell({children:[new Paragraph({children:[new TextRun({text:'✓',bold:true,size:20})],alignment:AlignmentType.CENTER})],width:{size:8,type:WidthType.PERCENTAGE},shading:{fill:'D0D9E8'}}),
+      new TableCell({children:[new Paragraph({children:[new TextRun({text:'상세사항',bold:true,size:20})]})],width:{size:27,type:WidthType.PERCENTAGE},shading:{fill:'D0D9E8'}}),
+    ]})];
+    secDef.forEach(sec=>{
+      chkRows.push(new TableRow({children:[new TableCell({children:[new Paragraph({children:[new TextRun({text:sec.title,bold:true,size:19,color:'1a3a5c'})]})],columnSpan:3,shading:{fill:'E8EEF5'}})]}));
+      sec.idx.forEach(idx=>{
+        if(!checks[idx])return;
+        chkRows.push(new TableRow({children:[
+          new TableCell({children:[new Paragraph({children:[new TextRun({text:checks[idx].text,size:18})]})],width:{size:65,type:WidthType.PERCENTAGE}}),
+          new TableCell({children:[new Paragraph({children:[new TextRun({text:checks[idx].checked?'✔':'',size:20,color:checks[idx].checked?'16a34a':'cccccc'})],alignment:AlignmentType.CENTER})],width:{size:8,type:WidthType.PERCENTAGE}}),
+          new TableCell({children:[new Paragraph({children:[new TextRun({text:checks[idx].detail,size:17})]})],width:{size:27,type:WidthType.PERCENTAGE}}),
+        ]}));
+      });
     });
-    const photoParas = [];
-    for (let i = 0; i < photos.length; i++) {
-      try {
-        const b64 = photos[i].dataUrl.split(',')[1];
-        const bin = atob(b64); const bytes = new Uint8Array(bin.length);
-        for (let j = 0; j < bin.length; j++) bytes[j] = bin.charCodeAt(j);
-        photoParas.push(
-          new Paragraph({ children: [new TextRun({ text: `사진 ${i+1}`, bold: true, color: '1a3a5c' })], spacing: { before: 120 } }),
-          new Paragraph({ children: [new ImageRun({ data: bytes.buffer, transformation: { width: 380, height: 260 }, type: 'jpg' })], spacing: { after: 120 } }),
-        );
-      } catch(e) {}
+    const riskParas=[];
+    if(manuals.length>0){
+      riskParas.push(new Paragraph({children:[new TextRun({text:'[수기 입력 위험요인]',bold:true,size:22,color:'1a3a5c'})],spacing:{before:100}}));
+      manuals.forEach((m,i)=>riskParas.push(new Paragraph({children:[new TextRun({text:`${i+1}. ${m}`,size:20})]})));
     }
-    let sigPara = new Paragraph({ children: [new TextRun('서명 없음')] });
-    try {
-      const sd = sigCanvas.toDataURL('image/png'); const sb = atob(sd.split(',')[1]);
-      const sb2 = new Uint8Array(sb.length); for (let i = 0; i < sb.length; i++) sb2[i] = sb.charCodeAt(i);
-      sigPara = new Paragraph({ children: [new ImageRun({ data: sb2.buffer, transformation: { width: 200, height: 70 }, type: 'png' })] });
-    } catch(e) {}
-
-    const doc = new Document({ sections: [{ properties: {}, children: [
-      new Paragraph({ children: [new TextRun({ text: '현장 순회점검표', bold: true, size: 40, color: '1a3a5c' })], alignment: AlignmentType.CENTER }),
-      new Paragraph({ children: [new TextRun({ text: 'Safety Patrol Inspection Report', size: 20, color: '888888' })], alignment: AlignmentType.CENTER, spacing: { after: 300 } }),
-      new Paragraph({ children: [new TextRun({ text: '■ 점검 기본 정보', bold: true, size: 26, color: '1a3a5c' })], spacing: { after: 100 } }),
-      new Table({ rows: infoRows, width: { size: 100, type: WidthType.PERCENTAGE } }),
-      new Paragraph({ children: [new TextRun({ text: '■ AI 위험요인 분석 결과', bold: true, size: 26, color: '1a3a5c' })], spacing: { before: 400, after: 100 } }),
-      ...riskParas,
-      new Paragraph({ children: [new TextRun({ text: '■ 현장 사진', bold: true, size: 26, color: '1a3a5c' })], spacing: { before: 400, after: 100 } }),
-      ...photoParas,
-      new Paragraph({ children: [new TextRun({ text: '■ 특이사항', bold: true, size: 26, color: '1a3a5c' })], spacing: { before: 400, after: 100 } }),
-      new Paragraph({ children: [new TextRun(notes)] }),
-      new Paragraph({ children: [new TextRun({ text: '■ 점검자 서명', bold: true, size: 26, color: '1a3a5c' })], spacing: { before: 400, after: 100 } }),
-      new Paragraph({ children: [new TextRun(`점검자: ${inspector}    날짜: ${inspDate}`)] }),
+    const sevLabel={high:'고위험',medium:'중위험',low:'저위험'};
+    const photoParas=[];
+    for(let i=0;i<photos.length;i++){
+      const p=photos[i];
+      photoParas.push(new Paragraph({children:[new TextRun({text:`사진 ${i+1}`,bold:true,size:22,color:'1a3a5c'})],spacing:{before:200}}));
+      if(p.dataUrl){
+        try{
+          const b64=p.dataUrl.split(',')[1];const bin=atob(b64);const bytes=new Uint8Array(bin.length);
+          for(let j=0;j<bin.length;j++)bytes[j]=bin.charCodeAt(j);
+          photoParas.push(new Paragraph({children:[new ImageRun({data:bytes.buffer,transformation:{width:380,height:255},type:'jpg'})],spacing:{after:80}}));
+        }catch(e){}
+      }
+      if(p.risk)photoParas.push(new Paragraph({children:[new TextRun({text:`위험요인: ${p.risk}`,size:20})]}));
+      if(p.severity)photoParas.push(new Paragraph({children:[new TextRun({text:`위험등급: ${sevLabel[p.severity]||p.severity}`,size:20,color:p.severity==='high'?'991b1b':p.severity==='medium'?'92400e':'065f46'})]}));
+      if(p.action)photoParas.push(new Paragraph({children:[new TextRun({text:`조치사항: ${p.action}`,size:20})]}));
+      if(p.law)photoParas.push(new Paragraph({children:[new TextRun({text:`관계법령: ${p.law}`,size:20,color:'1d4ed8'})],spacing:{after:100}}));
+    }
+    let sigPara=new Paragraph({children:[new TextRun('서명 없음')]});
+    try{
+      const sd=sigCanvas.toDataURL('image/png');const sb=atob(sd.split(',')[1]);
+      const sb2=new Uint8Array(sb.length);for(let i=0;i<sb.length;i++)sb2[i]=sb.charCodeAt(i);
+      sigPara=new Paragraph({children:[new ImageRun({data:sb2.buffer,transformation:{width:190,height:65},type:'png'})]});
+    }catch(e){}
+    const doc=new Document({sections:[{properties:{},children:[
+      new Paragraph({children:[new TextRun({text:'안전·환경·보건·소방 일일 체크리스트',bold:true,size:36,color:'1a3a5c'})],alignment:AlignmentType.CENTER}),
+      new Paragraph({children:[new TextRun({text:DATESTR,size:22,color:'555555'})],alignment:AlignmentType.CENTER,spacing:{after:200}}),
+      new Paragraph({children:[new TextRun({text:`점검구역: ${zone}    점검자: ${inspector}`,size:21})],spacing:{after:160}}),
+      new Table({rows:chkRows,width:{size:100,type:WidthType.PERCENTAGE}}),
+      ...(riskParas.length>0?[new Paragraph({children:[new TextRun({text:'■ 위험요인',bold:true,size:26,color:'1a3a5c'})],spacing:{before:300,after:100}}),...riskParas]:[]),
+      ...(photoParas.length>0?[new Paragraph({children:[new TextRun({text:'■ 현장 사진',bold:true,size:26,color:'1a3a5c'})],spacing:{before:300,after:100}}),...photoParas]:[]),
+      new Paragraph({children:[new TextRun({text:'■ 특이사항',bold:true,size:26,color:'1a3a5c'})],spacing:{before:300,after:100}}),
+      new Paragraph({children:[new TextRun({text:notes,size:20})]}),
+      new Paragraph({children:[new TextRun({text:'■ 점검자 서명',bold:true,size:26,color:'1a3a5c'})],spacing:{before:300,after:100}}),
+      new Paragraph({children:[new TextRun({text:`점검자: ${inspector}    일자: ${NOW.getFullYear()}년 ${NOW.getMonth()+1}월 ${NOW.getDate()}일`,size:20})]}),
       sigPara,
-    ]}] });
-    const blob = await Packer.toBlob(doc);
-    lastDocBlob = blob;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `순회점검표_${siteName}_${inspDate}.docx`; a.click();
-    URL.revokeObjectURL(url);
-    document.getElementById('summaryContent').innerHTML = `
-      <div class="info-row"><span class="info-row-label">현장명</span><span class="info-row-val">${siteName}</span></div>
-      <div class="info-row"><span class="info-row-label">점검 날짜</span><span class="info-row-val">${inspDate}</span></div>
-      <div class="info-row"><span class="info-row-label">점검자</span><span class="info-row-val">${inspector}</span></div>
-      <div class="info-row"><span class="info-row-label">위험요인 수</span><span class="info-row-val">${analysisResults.length}건</span></div>
-      <div class="info-row"><span class="info-row-label">첨부 사진</span><span class="info-row-val">${photos.length}장</span></div>`;
-    goToPage(4);
-  } catch(err) { alert('파일 생성 오류: ' + err.message); }
-  btn.textContent = '📄 Word 파일 생성하기'; btn.disabled = false;
+    ]}]});
+    const blob=await Packer.toBlob(doc);
+    lastBlob=blob;
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;
+    a.download=`일일안전점검_${zone}_${NOW.getFullYear()}${String(NOW.getMonth()+1).padStart(2,'0')}${String(NOW.getDate()).padStart(2,'0')}.docx`;
+    a.click();URL.revokeObjectURL(url);
+    document.getElementById('mainApp').style.display='none';
+    document.getElementById('doneWrap').classList.add('show');
+    document.getElementById('doneMsg').innerHTML=`<strong>${zone}</strong> 점검표 Word 파일이 생성되었습니다.<br>사진 ${photos.length}장 · 위험요인 ${manuals.length}건 포함`;
+  }catch(err){alert('오류: '+err.message);}
+  btn.textContent='✅ 작성완료 · Word 파일 생성';btn.disabled=false;
 }
 
-function downloadAgain() {
-  if (!lastDocBlob) return;
-  const url = URL.createObjectURL(lastDocBlob);
-  const a = document.createElement('a'); a.href = url; a.download = '순회점검표.docx'; a.click();
-  URL.revokeObjectURL(url);
+function downloadAgain(){
+  if(!lastBlob)return;
+  const url=URL.createObjectURL(lastBlob);
+  const a=document.createElement('a');a.href=url;a.download='일일안전점검.docx';a.click();URL.revokeObjectURL(url);
 }
 
-function resetApp() {
-  photos = []; analysisResults = []; lastDocBlob = null;
-  renderPhotoGrid();
-  document.getElementById('aiResults').innerHTML = '';
-  document.getElementById('errorBox').innerHTML = '';
-  ['inspector','siteName','location','notes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('zone').value = '';
-  document.getElementById('inspDate').value = new Date().toISOString().split('T')[0];
-  clearSig(); goToPage(1);
+function resetAll(){
+  document.getElementById('mainApp').style.display='flex';
+  document.getElementById('doneWrap').classList.remove('show');
+  document.querySelectorAll('.chk-box').forEach(el=>{el.classList.remove('checked');el.querySelector('.chk-icon').textContent='○'});
+  document.querySelectorAll('.det-input,.manual-ta,.note-ta').forEach(el=>el.value='');
+  document.getElementById('inspector').value='';document.getElementById('zone').value='';
+  document.getElementById('notes').value='';document.getElementById('emailInput').value='';
+  photos=[];renderPhotoCards();clearSig();
+  document.getElementById('manualList').innerHTML='<div class="manual-item"><div class="manual-num">1</div><textarea class="manual-ta" placeholder="위험요인 내용 직접 입력..."></textarea></div>';
+  manCnt=1;window.scrollTo(0,0);
 }
 </script>
 </body>
