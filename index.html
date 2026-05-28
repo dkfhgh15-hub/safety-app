@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0047)file:///C:/Users/user/Downloads/index_v5_1.html -->
+<!-- saved from url=(0045)file:///C:/Users/user/Downloads/index_v8.html -->
 <html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -23183,7 +23183,7 @@ body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;back
     <div class="tab active" onclick="switchTab(&#39;checklist&#39;,this)">📋 점검표</div>
     <div class="tab" onclick="switchTab(&#39;photos&#39;,this)">📸 사진 <span class="tab-badge" id="photoBadge" style="display:none">0</span></div>
   </div>
-  <div class="date-bar" id="dateBar">일 자 : 2026년 5월 21일 (목요일)</div>
+  <div class="date-bar" id="dateBar">일 자 : 2026년 5월 28일 (목요일)</div>
   <div class="info-section">
     <div class="info-field"><div class="info-label">점검구역 / 현장명</div><input class="info-input" id="zone" type="text" placeholder="직접 입력"></div>
     <div class="info-field"><div class="info-label">점검자</div><input class="info-input" id="inspector" type="text" placeholder="이름 입력"></div>
@@ -23437,28 +23437,60 @@ async function submitForm(){
     }
     const sevLabel={high:'고위험',medium:'중위험',low:'저위험'};
     const photoParas=[];
-    for(let i=0;i<photos.length;i++){
-      const p=photos[i];
-      photoParas.push(new Paragraph({children:[new TextRun({text:`사진 ${i+1}`,bold:true,size:22,color:'1a3a5c'})],spacing:{before:200}}));
-      if(p.dataUrl){
+    const makePhotoCell = (p, idx) => {
+      const cellChildren = [];
+      cellChildren.push(new Paragraph({children:[new TextRun({text:`사진 ${idx+1}`,bold:true,size:20,color:'1a3a5c'})],spacing:{after:60}}));
+      if(p && p.dataUrl){
         try{
           const b64=p.dataUrl.split(',')[1];const bin=atob(b64);const bytes=new Uint8Array(bin.length);
           for(let j=0;j<bin.length;j++)bytes[j]=bin.charCodeAt(j);
-          photoParas.push(new Paragraph({children:[new ImageRun({data:bytes.buffer,transformation:{width:380,height:255},type:'jpg'})],spacing:{after:80}}));
+          cellChildren.push(new Paragraph({children:[new ImageRun({data:bytes.buffer,transformation:{width:185,height:130},type:'jpg'})],spacing:{after:60}}));
         }catch(e){}
       }
-      if(p.risk)photoParas.push(new Paragraph({children:[new TextRun({text:`위험요인: ${p.risk}`,size:20})]}));
-      if(p.severity)photoParas.push(new Paragraph({children:[new TextRun({text:`위험등급: ${sevLabel[p.severity]||p.severity}`,size:20,color:p.severity==='high'?'991b1b':p.severity==='medium'?'92400e':'065f46'})]}));
-      if(p.action)photoParas.push(new Paragraph({children:[new TextRun({text:`조치사항: ${p.action}`,size:20})]}));
-      if(p.law)photoParas.push(new Paragraph({children:[new TextRun({text:`관계법령: ${p.law}`,size:20,color:'1d4ed8'})],spacing:{after:100}}));
+      if(p && p.risk) cellChildren.push(new Paragraph({children:[new TextRun({text:`위험요인: ${p.risk}`,size:17})]}));
+      if(p && p.severity) cellChildren.push(new Paragraph({children:[new TextRun({text:`위험등급: ${sevLabel[p.severity]||p.severity}`,size:17,color:p.severity==='high'?'991b1b':p.severity==='medium'?'92400e':'065f46'})]}));
+      if(p && p.action) cellChildren.push(new Paragraph({children:[new TextRun({text:`조치사항: ${p.action}`,size:17})]}));
+      if(p && p.law) cellChildren.push(new Paragraph({children:[new TextRun({text:`관계법령: ${p.law}`,size:17,color:'1d4ed8'})]}));
+      if(!p || cellChildren.length===1) cellChildren.push(new Paragraph({children:[new TextRun('')]}));
+      return new TableCell({children:cellChildren,width:{size:4680,type:WidthType.DXA},margins:{top:80,bottom:80,left:80,right:80}});
+    };
+    const photoRows=[];
+    for(let i=0;i<photos.length;i+=2){
+      photoRows.push(new TableRow({children:[makePhotoCell(photos[i],i), makePhotoCell(photos[i+1]||null,i+1)]}));
     }
-    let sigPara=new Paragraph({children:[new TextRun('서명 없음')]});
+    if(photoRows.length>0){
+      photoParas.push(new Table({rows:photoRows,width:{size:9360,type:WidthType.DXA},columnWidths:[4680,4680],layout:TableLayoutType?TableLayoutType.FIXED:'fixed'}));
+    }
+    let sigImgRun=null;
     try{
       const sd=sigCanvas.toDataURL('image/png');const sb=atob(sd.split(',')[1]);
       const sb2=new Uint8Array(sb.length);for(let i=0;i<sb.length;i++)sb2[i]=sb.charCodeAt(i);
-      sigPara=new Paragraph({children:[new ImageRun({data:sb2.buffer,transformation:{width:190,height:65},type:'png'})]});
+      sigImgRun=new ImageRun({data:sb2.buffer,transformation:{width:130,height:50},type:'png'});
     }catch(e){}
-    const doc=new Document({sections:[{properties:{},children:[
+    const sigTable=new Table({
+      rows:[
+        new TableRow({children:[
+          new TableCell({children:[new Paragraph({children:[new TextRun({text:'담당',bold:true,size:20})],alignment:AlignmentType.CENTER})],width:{size:3120,type:WidthType.DXA},shading:{fill:'E8EEF5'},margins:{top:60,bottom:60,left:60,right:60}}),
+          new TableCell({children:[new Paragraph({children:[new TextRun({text:'검토',bold:true,size:20})],alignment:AlignmentType.CENTER})],width:{size:3120,type:WidthType.DXA},shading:{fill:'E8EEF5'},margins:{top:60,bottom:60,left:60,right:60}}),
+          new TableCell({children:[new Paragraph({children:[new TextRun({text:'결재',bold:true,size:20})],alignment:AlignmentType.CENTER})],width:{size:3120,type:WidthType.DXA},shading:{fill:'E8EEF5'},margins:{top:60,bottom:60,left:60,right:60}}),
+        ]}),
+        new TableRow({children:[
+          new TableCell({children:[
+            new Paragraph({children:sigImgRun?[sigImgRun]:[new TextRun('')],alignment:AlignmentType.CENTER}),
+            new Paragraph({children:[new TextRun({text:inspector,size:18})],alignment:AlignmentType.CENTER}),
+          ],width:{size:3120,type:WidthType.DXA},margins:{top:80,bottom:80,left:60,right:60}}),
+          new TableCell({children:[new Paragraph({children:[new TextRun('')],spacing:{before:800}})],width:{size:3120,type:WidthType.DXA},margins:{top:80,bottom:80,left:60,right:60}}),
+          new TableCell({children:[new Paragraph({children:[new TextRun('')],spacing:{before:800}})],width:{size:3120,type:WidthType.DXA},margins:{top:80,bottom:80,left:60,right:60}}),
+        ]}),
+      ],
+      width:{size:9360,type:WidthType.DXA},
+      columnWidths:[3120,3120,3120]
+    });
+    const doc=new Document({sections:[{properties:{
+        page:{
+          margin:{top:720,right:720,bottom:720,left:720}
+        }
+      },children:[
       new Paragraph({children:[new TextRun({text:'안전·환경·보건·소방 일일 체크리스트',bold:true,size:36,color:'1a3a5c'})],alignment:AlignmentType.CENTER}),
       new Paragraph({children:[new TextRun({text:DATESTR,size:22,color:'555555'})],alignment:AlignmentType.CENTER,spacing:{after:200}}),
       new Paragraph({children:[new TextRun({text:`점검구역: ${zone}    점검자: ${inspector}`,size:21})],spacing:{after:160}}),
@@ -23468,8 +23500,7 @@ async function submitForm(){
       new Paragraph({children:[new TextRun({text:'■ 특이사항',bold:true,size:26,color:'1a3a5c'})],spacing:{before:300,after:100}}),
       new Paragraph({children:[new TextRun({text:notes,size:20})]}),
       new Paragraph({children:[new TextRun({text:'■ 점검자 서명',bold:true,size:26,color:'1a3a5c'})],spacing:{before:300,after:100}}),
-      new Paragraph({children:[new TextRun({text:`점검자: ${inspector}    일자: ${NOW.getFullYear()}년 ${NOW.getMonth()+1}월 ${NOW.getDate()}일`,size:20})]}),
-      sigPara,
+      sigTable,
     ]}]});
     const blob=await Packer.toBlob(doc);
     lastBlob=blob;
